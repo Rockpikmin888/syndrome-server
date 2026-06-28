@@ -35,7 +35,7 @@ def join_match():
     }
 
 
-@matchmaking.route('/makeMatch')
+@matchmaking.route('/makeMatch', methods=['GET', 'POST'])
 def make_match():
     return {
         "ty": "WaitingForMatch",
@@ -43,7 +43,6 @@ def make_match():
         "gi": None
     }
 
-
-@matchmaking.route('/matchPoll')
+@matchmaking.route('/matchPoll', methods=['GET', 'POST'])
 def match_poll():
     return {}
