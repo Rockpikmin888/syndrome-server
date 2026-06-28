@@ -8,6 +8,11 @@ from seasons import seasons
 from utils import root
 
 app = Flask(__name__)
+@app.before_request
+def log_request():
+    print(f"{request.method} {request.path}")
+    print(f"Body: {request.get_data(as_text=True)}")
+    
 app.register_blueprint(matchmaking)
 app.register_blueprint(persistence)
 app.register_blueprint(persistence2)
