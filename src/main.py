@@ -1,3 +1,5 @@
+import sys
+sys.stdout.flush()
 from flask import Flask, request, redirect
 import json
 from matchmaking import matchmaking
@@ -10,8 +12,8 @@ from utils import root
 app = Flask(__name__)
 @app.before_request
 def log_request():
-    print(f"{request.method} {request.path}")
-    print(f"Body: {request.get_data(as_text=True)}")
+    print(f"{request.method} {request.path}", flush=True)
+    print(f"Body: {request.get_data(as_text=True)}", flush=True)
     
 app.register_blueprint(matchmaking)
 app.register_blueprint(persistence)
