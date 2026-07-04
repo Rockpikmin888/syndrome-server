@@ -33,7 +33,17 @@ def join_match():
         "gi": gi,
         "or": 50
     }
+@matchmaking.route('/queryStats', methods=['GET', 'POST'])
+def query_stats():
+    return {
+        "wins": 0,
+        "losses": 0,
+        "mmr": 1600
+    }
 
+@matchmaking.route('/cancelMatch', methods=['GET', 'POST'])
+def cancel_match():
+    return {}
 
 @matchmaking.route('/makeMatch', methods=['GET', 'POST'])
 def make_match():
