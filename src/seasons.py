@@ -14,7 +14,7 @@ def history():
     }
 
 
-@seasons.route('/complete')
+@seasons.route('/complete', methods=['GET', 'POST'])
 def complete():
     return {
         "current": {
