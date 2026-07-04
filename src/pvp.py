@@ -62,6 +62,18 @@ def pvp_poll():
             "ty": "PvpMessages"
         }
 
+@matchmaking.route('/queryStats', methods=['GET', 'POST'])
+def query_stats():
+    return {
+        "wins": 0,
+        "losses": 0,
+        "mmr": 1600
+    }
+
+@matchmaking.route('/cancelMatch', methods=['GET', 'POST'])
+def cancel_match():
+    return {}
+
 
 @pvp.route('/history')
 def make_match():
@@ -70,6 +82,10 @@ def make_match():
         "version": None,
         "id": get_id()
     }
+
+@pvp.route('/setPlayerName', methods=['GET', 'POST'])
+def set_player_name():
+    return {}
 
 
 @pvp.route('/playerPvpData')
