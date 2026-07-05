@@ -51,11 +51,12 @@ def make_match():
     data = request.get_json()
     pid = get_id()
     sd = json.dumps(data)
+    faction = data.get('f', '')
 
     r.setex(pid + "-sd", 120, sd)
     r.setex(pid + "-seed", 120, str(getrandbits(60)))
 
-    
+    # Check if already matched
     matched = r.get(pid + "-matched")
     if matched:
         opponent = matched.decode()
@@ -69,36 +70,28 @@ def make_match():
                 "or": 50
             }
 
-   
-    claimed = r.setnx("waiting-player", pid)
-    if claimed:
-        r.expire("waiting-player", 60)
+    # Look for opposite faction waiting
+    opposite = "Z" if faction == "P" else "P"
+    opponent = r.get("waiting-" + opposite)
+    
+    if opponent and opponent.decode() != pid:
+        opponent = opponent.decode()
+        r.delete("waiting-" + opposite)
+        r.setex(opponent + "-matched", 120, pid)
         return {
-            "ty": "WaitingForMatch",
-            "eta": 30,
-            "gi": None
+            "ty": "MatchReady",
+            "sd": r.get(opponent + "-sd").decode(),
+            "gi": opponent,
+            "or": 50
         }
-    else:
-        
-        opponent = r.getdel("waiting-player")
-        if opponent and opponent.decode() != pid:
-            opponent = opponent.decode()
-            r.setex(opponent + "-matched", 120, pid)
-            return {
-                "ty": "MatchReady",
-                "sd": r.get(opponent + "-sd").decode(),
-                "gi": opponent,
-                "or": 50
-            }
-        else:
-          
-            r.setnx("waiting-player", pid)
-            r.expire("waiting-player", 60)
-            return {
-                "ty": "WaitingForMatch",
-                "eta": 30,
-                "gi": None
-            }
+    
+    # No opponent, wait in faction queue
+    r.setex("waiting-" + faction, 60, pid)
+    return {
+        "ty": "WaitingForMatch",
+        "eta": 30,
+        "gi": None
+    }
 
 @matchmaking.route('/matchPoll', methods=['GET', 'POST'])
 def match_poll():
