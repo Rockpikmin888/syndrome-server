@@ -1,12 +1,9 @@
 import json
-
 from flask import Blueprint, request
 from utils import r, it_should_be_there_soon
 from random import getrandbits
-from utils import r, it_should_be_there_soon, get_id
 
 matchmaking = Blueprint('matchmaking', __name__, url_prefix='/matchmaking/v1')
-
 
 @matchmaking.route('/createChallenge', methods=['POST'])
 def create_challenge():
@@ -23,7 +20,6 @@ def create_challenge():
         "gi": challenged
     }
 
-
 @matchmaking.route('/joinMatch', methods=['POST'])
 def join_match():
     data = request.get_json()
@@ -34,19 +30,8 @@ def join_match():
         "gi": gi,
         "or": 50
     }
-@matchmaking.route('/queryStats', methods=['GET', 'POST'])
-def query_stats():
-    return {
-        "wins": 0,
-        "losses": 0,
-        "mmr": 1600
-    }
 
-@matchmaking.route('/cancelMatch', methods=['GET', 'POST'])
-def cancel_match():
-    return {}
-
-@matchmaking.route('/makeMatch', methods=['GET', 'POST'])
+@matchmaking.route('/makeMatch')
 def make_match():
     return {
         "ty": "WaitingForMatch",
@@ -54,6 +39,6 @@ def make_match():
         "gi": None
     }
 
-@matchmaking.route('/matchPoll', methods=['GET', 'POST'])
+@matchmaking.route('/matchPoll')
 def match_poll():
     return {}
