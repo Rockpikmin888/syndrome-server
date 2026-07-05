@@ -48,45 +48,6 @@ def cancel_match():
 
 @matchmaking.route('/makeMatch', methods=['GET', 'POST'])
 def make_match():
-    data = request.get_json()
-    pid = get_id()
-    sd = json.dumps(data)
-    faction = data.get('f', '')
-
-    r.setex(pid + "-sd", 120, sd)
-    r.setex(pid + "-seed", 120, str(getrandbits(60)))
-
-    # Check if already matched
-    matched = r.get(pid + "-matched")
-    if matched:
-        opponent = matched.decode()
-        r.delete(pid + "-matched")
-        opp_sd = r.get(opponent + "-sd")
-        if opp_sd:
-            return {
-                "ty": "MatchReady",
-                "sd": opp_sd.decode(),
-                "gi": opponent,
-                "or": 50
-            }
-
-    # Look for opposite faction waiting
-    opposite = "Z" if faction == "P" else "P"
-    opponent = r.get("waiting-" + opposite)
-    
-    if opponent and opponent.decode() != pid:
-        opponent = opponent.decode()
-        r.delete("waiting-" + opposite)
-        r.setex(opponent + "-matched", 120, pid)
-        return {
-            "ty": "MatchReady",
-            "sd": r.get(opponent + "-sd").decode(),
-            "gi": opponent,
-            "or": 50
-        }
-    
-    # No opponent, wait in faction queue
-    r.setex("waiting-" + faction, 60, pid)
     return {
         "ty": "WaitingForMatch",
         "eta": 30,
