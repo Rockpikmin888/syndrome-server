@@ -1,11 +1,8 @@
 import json
-
 from flask import Blueprint, request
-
 from utils import get_id, it_should_be_there_soon, make_entity_model, make_rng, r
 
 pvp = Blueprint('pvp', __name__, url_prefix='/pvp/v1')
-
 
 @pvp.route('/initGame', methods=['POST'])
 def init_game():
@@ -17,7 +14,6 @@ def init_game():
     seed = int.from_bytes(seed1) ^ int.from_bytes(seed2)
     sd1 = it_should_be_there_soon(pid + '-sd')
     sd2 = it_should_be_there_soon(gi + '-sd')
-
     return {
         "entityModel": make_entity_model(json.loads(sd1), json.loads(sd2)),
         "rngSeedData": make_rng(seed),
@@ -30,7 +26,6 @@ def init_game():
         "gst": "0"
     }
 
-
 @pvp.route('/pvpSendUpdate', methods=['POST'])
 def pvp_send_update():
     data = request.get_json()
@@ -41,7 +36,6 @@ def pvp_send_update():
         "ty": "PlayResponse",
         "p": "Play"
     }
-
 
 @pvp.route('/pvpPoll', methods=['POST'])
 def pvp_poll():
@@ -62,7 +56,6 @@ def pvp_poll():
             "ty": "PvpMessages"
         }
 
-
 @pvp.route('/history')
 def make_match():
     return {
@@ -70,11 +63,6 @@ def make_match():
         "version": None,
         "id": get_id()
     }
-
-@pvp.route('/setPlayerName', methods=['GET', 'POST'])
-def set_player_name():
-    return {}
-
 
 @pvp.route('/playerPvpData')
 def player_pvp_data():
