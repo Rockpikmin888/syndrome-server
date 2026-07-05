@@ -47,11 +47,34 @@ def cancel_match():
 
 @matchmaking.route('/makeMatch', methods=['GET', 'POST'])
 def make_match():
-    return {
-        "ty": "WaitingForMatch",
-        "eta": 30,
-        "gi": None
-    }
+    data = request.get_json()
+    pid = get_id()
+    sd = json.dumps(data)
+    
+    # Store this player's data
+    r.setex(pid + "-sd", 60, sd)
+    r.setex(pid + "-seed", 60, getrandbits(60))
+    
+    # Look for another waiting player
+    waiting = r.get("waiting-player")
+    
+    if waiting and waiting.decode() != pid:
+        opponent = waiting.decode()
+        r.delete("waiting-player")
+        return {
+            "ty": "MatchReady",
+            "sd": r.get(opponent + "-sd").decode(),
+            "gi": opponent,
+            "or": 50
+        }
+    else:
+        # No opponent yet, join the queue
+        r.setex("waiting-player", 60, pid)
+        return {
+            "ty": "WaitingForMatch",
+            "eta": 30,
+            "gi": None
+        }
 
 @matchmaking.route('/matchPoll', methods=['GET', 'POST'])
 def match_poll():
