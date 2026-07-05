@@ -1,9 +1,6 @@
 from flask import Blueprint
-
 from utils import get_id
-
 seasons = Blueprint('seasons', __name__, url_prefix='/seasons/v1')
-
 
 @seasons.route('/history')
 def history():
@@ -13,8 +10,7 @@ def history():
         "id": get_id()
     }
 
-
-@seasons.route('/complete', methods=['GET', 'POST'])
+@seasons.route('/complete')
 def complete():
     return {
         "current": {
@@ -36,7 +32,6 @@ def complete():
             "id": get_id()
         }
     }
-
 
 @seasons.route('/acknowledge')
 def acknowledge():
