@@ -3,6 +3,7 @@ import json
 from flask import Blueprint, request
 from utils import r, it_should_be_there_soon
 from random import getrandbits
+from utils import r, it_should_be_there_soon, get_id
 
 matchmaking = Blueprint('matchmaking', __name__, url_prefix='/matchmaking/v1')
 
