@@ -52,42 +52,53 @@ def make_match():
     pid = get_id()
     sd = json.dumps(data)
 
-    r.setex(pid + "-sd", 60, sd)
-    r.setex(pid + "-seed", 60, str(getrandbits(60)))
+    r.setex(pid + "-sd", 120, sd)
+    r.setex(pid + "-seed", 120, str(getrandbits(60)))
 
     
     matched = r.get(pid + "-matched")
     if matched:
         opponent = matched.decode()
         r.delete(pid + "-matched")
-        return {
-            "ty": "MatchReady",
-            "sd": r.get(opponent + "-sd").decode(),
-            "gi": opponent,
-            "or": 50
-        }
-
-    
-    waiting = r.get("waiting-player")
-    if waiting and waiting.decode() != pid:
-        opponent = waiting.decode()
-        r.delete("waiting-player")
-        # Notify opponent they got matched
-        r.setex(opponent + "-matched", 60, pid)
-        return {
-            "ty": "MatchReady",
-            "sd": r.get(opponent + "-sd").decode(),
-            "gi": opponent,
-            "or": 50
-        }
+        opp_sd = r.get(opponent + "-sd")
+        if opp_sd:
+            return {
+                "ty": "MatchReady",
+                "sd": opp_sd.decode(),
+                "gi": opponent,
+                "or": 50
+            }
 
    
-    r.setex("waiting-player", 60, pid)
-    return {
-        "ty": "WaitingForMatch",
-        "eta": 30,
-        "gi": None
-    }
+    claimed = r.setnx("waiting-player", pid)
+    if claimed:
+        r.expire("waiting-player", 60)
+        return {
+            "ty": "WaitingForMatch",
+            "eta": 30,
+            "gi": None
+        }
+    else:
+        
+        opponent = r.getdel("waiting-player")
+        if opponent and opponent.decode() != pid:
+            opponent = opponent.decode()
+            r.setex(opponent + "-matched", 120, pid)
+            return {
+                "ty": "MatchReady",
+                "sd": r.get(opponent + "-sd").decode(),
+                "gi": opponent,
+                "or": 50
+            }
+        else:
+          
+            r.setnx("waiting-player", pid)
+            r.expire("waiting-player", 60)
+            return {
+                "ty": "WaitingForMatch",
+                "eta": 30,
+                "gi": None
+            }
 
 @matchmaking.route('/matchPoll', methods=['GET', 'POST'])
 def match_poll():
