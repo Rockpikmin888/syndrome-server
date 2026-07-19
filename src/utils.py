@@ -554,7 +554,7 @@ def make_entity_model(sd1, sd2):
                             "2": int(x)
                         }] * plant_sd['Deck']['super'][x]]
     max_hand = 10
-    max_health = 2147483647
+    max_health = 25
     if '1005433873053' in [plant_id, zombie_id]:
         max_hand = 10
         max_health = 25
